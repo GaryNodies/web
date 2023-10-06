@@ -35,6 +35,7 @@ export function explorerTxToBridgeWithdrawal(tx: BlockExplorerTransaction): Brid
       blockTimestamp: tx.timeStamp,
       hash: tx.hash as `0x${string}`,
       priceApiId: 'ethereum',
+      protocol: 'OP',
     };
   }
 
@@ -59,5 +60,6 @@ export function explorerTxToBridgeWithdrawal(tx: BlockExplorerTransaction): Brid
     blockTimestamp: tx.timeStamp,
     hash: tx.hash as `0x${string}`,
     priceApiId: token?.apiId,
+    protocol: 'OP',
   };
 }

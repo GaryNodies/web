@@ -22,15 +22,14 @@ export function usePrepareInitiateCCTPBridge({
   destinationDomain,
   isPermittedToBridge,
 }: UsePrepareInitiateCCTPBridgeProps) {
+  const shouldPrepare = isPermittedToBridge && depositAmount !== '' && mintRecipient;
+
   const { config: depositConfig } = usePrepareContractWrite({
-    address:
-      isPermittedToBridge && depositAmount !== '' && mintRecipient
-        ? publicRuntimeConfig.l1CCTPTokenMessengerAddress
-        : undefined,
+    address: shouldPrepare ? publicRuntimeConfig.l1CCTPTokenMessengerAddress : undefined,
     abi: TokenMessenger,
     functionName: 'depositForBurn',
     chainId: parseInt(publicRuntimeConfig.l1ChainID),
-    args: mintRecipient
+    args: shouldPrepare
       ? [
           depositAmount !== ''
             ? parseUnits(depositAmount, asset.decimals)
