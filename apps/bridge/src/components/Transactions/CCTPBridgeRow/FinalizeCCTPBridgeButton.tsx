@@ -1,8 +1,9 @@
 import { memo, useCallback } from 'react';
 import { usePrepareFinalizeCCTPBridge } from 'apps/bridge/src/utils/hooks/usePrepareFinalizeCCTPBridge';
 import { useIsPermittedToBridge } from 'apps/bridge/src/utils/hooks/useIsPermittedToBridge';
-import { useContractWrite, useNetwork, useSwitchNetwork } from 'wagmi';
+import { useContractWrite, useNetwork, useProvider, useSwitchNetwork } from 'wagmi';
 import getConfig from 'next/config';
+import { CCTPBridgePhase } from 'apps/bridge/src/utils/transactions/phase';
 
 const { publicRuntimeConfig } = getConfig();
 const l1ChainID = parseInt(publicRuntimeConfig.l1ChainID);
@@ -12,16 +13,19 @@ type FinalizeCCTPBridgeButtonProps = {
   message?: `0x${string}`;
   attestation?: `0x${string}`;
   bridgeDirection: 'deposit' | 'withdraw';
+  setStatus: (status: CCTPBridgePhase) => void;
 };
 
 export const FinalizeCCTPBridgeButton = memo(function FinalizeCCTPBridgeButton({
   message,
   attestation,
   bridgeDirection,
+  setStatus,
 }: FinalizeCCTPBridgeButtonProps) {
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const isPermittedToBridge = useIsPermittedToBridge();
+  const provider = useProvider({ chainId: bridgeDirection === 'deposit' ? l2ChainID : l1ChainID });
 
   const finalizeCCTPBridgeConfig = usePrepareFinalizeCCTPBridge({
     isPermittedToBridge,
@@ -41,18 +45,24 @@ export const FinalizeCCTPBridgeButton = memo(function FinalizeCCTPBridgeButton({
       try {
         if (isPermittedToBridge) {
           const finalizeResult = await finalizeCCTPBridge?.();
+          setStatus('FINALIZE_CCTP_BRIDGE_PENDING');
           if (finalizeResult?.hash) {
-            // const finalizeTxHash = finalizeResult.hash;
-            // TODO: set finalize tx hash
+            const finalizeTxReceipt = await provider.waitForTransaction(finalizeResult.hash);
+            setStatus(
+              finalizeTxReceipt?.status === 1
+                ? 'CCTP_BRIDGE_COMPLETE'
+                : 'FINALIZE_CCTP_BRIDGE_FAILED',
+            );
           }
         } else {
           // TODO: close modal
         }
       } catch {
+        setStatus('FINALIZE_CCTP_BRIDGE_FAILED');
         // TODO: close modal
       }
     })();
-  }, [finalizeCCTPBridge, isPermittedToBridge]);
+  }, [finalizeCCTPBridge, isPermittedToBridge, provider, setStatus]);
 
   const isOnCorrectNetwork =
     (bridgeDirection === 'deposit' && chain?.id === l2ChainID) ||
