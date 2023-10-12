@@ -32,7 +32,7 @@ export const WithdrawalRow = memo(function WithdrawalRow({
   return (
     <OPWithdrawalRow
       transaction={transaction}
-      latestL2BlockNumber={blockNumberOfLatestL2OutputProposal}
+      blockNumberOfLatestL2OutputProposal={blockNumberOfLatestL2OutputProposal}
       onOpenProveWithdrawalModal={onOpenProveWithdrawalModal}
       onCloseProveWithdrawalModal={onCloseProveWithdrawalModal}
       onOpenFinalizeWithdrawalModal={onOpenFinalizeWithdrawalModal}

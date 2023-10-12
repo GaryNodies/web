@@ -21,7 +21,7 @@ import { BridgePhaseIndicator } from 'apps/bridge/src/components/Transactions/Br
 
 type OPWithdrawalRowProps = {
   transaction: BridgeTransaction;
-  latestL2BlockNumber?: BigNumber;
+  blockNumberOfLatestL2OutputProposal?: BigNumber;
   onOpenProveWithdrawalModal: () => void;
   onCloseProveWithdrawalModal: () => void;
   onOpenFinalizeWithdrawalModal: () => void;
@@ -32,7 +32,7 @@ type OPWithdrawalRowProps = {
 
 export const OPWithdrawalRow = memo(function OPWithdrawalRow({
   transaction,
-  latestL2BlockNumber,
+  blockNumberOfLatestL2OutputProposal,
   onOpenProveWithdrawalModal,
   onCloseProveWithdrawalModal,
   onOpenFinalizeWithdrawalModal,
@@ -45,7 +45,7 @@ export const OPWithdrawalRow = memo(function OPWithdrawalRow({
   const [finalizeTxHash, setFinalizeTxHash] = useState<`0x${string}` | undefined>(undefined);
   const { status: withdrawalStatus, challengeWindowEndTime } = useWithdrawalStatus({
     initializeTxHash: transaction.hash,
-    latestL2BlockNumber,
+    blockNumberOfLatestL2OutputProposal,
     isERC20Withdrawal,
     proveTxHash,
     finalizeTxHash,
@@ -120,6 +120,7 @@ export const OPWithdrawalRow = memo(function OPWithdrawalRow({
         onCloseProveWithdrawalModal={onCloseProveWithdrawalModal}
         setProveTxHash={setProveTxHash}
         setModalProveTxHash={setModalProveTxHash}
+        blockNumberOfLatestL2OutputProposal={blockNumberOfLatestL2OutputProposal}
       />
     ),
     PROVE_TX_PENDING: pendingButton,
